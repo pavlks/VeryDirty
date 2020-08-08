@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %} Лента borboleta {% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: gainsboro;
+    }
+
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+    <!-- Верхняя навигация -->
+    <div class="container mt-4 mb-4">
+    <row>
+    <ul class="nav justify-content-center">
+      <li class="nav-item">
+        <a class="nav-link {% if settings.threshold_date == 'day' %} active disabled {% endif %}" href="{% url 'index' threshold_date='day' page=1 %}">День</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if settings.threshold_date == 'week' %} active disabled {% endif %}" href="{% url 'index' threshold_date='week' page=1 %}">Неделя</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if settings.threshold_date == 'month' %} active disabled {% endif %}" href="{% url 'index' threshold_date='month' page=1 %}">Месяц</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if settings.threshold_date == 'year' %} active disabled {% endif %}" href="{% url 'index' threshold_date='year' page=1 %}">Год</a>
+      </li>
+    </ul>
+    </row>
+    </div>
+
+
+
+    <!-- Здесь выводятся все статьи -->
+    <div class="container">
+    <div class="row">
+    {% for p in posts %}
+        {% if p.user.karma > 0 and p.rating > 0 %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body">
+                <a href="{{p.domain.url}}" class="badge badge-dark float-right">at {{p.domain.prefix|upper}}</a>
+                <a href="{{p.domain.url}}/{{p.url_slug}}-{{p.id}}" class="text-dark"><h4 class="card-title">{{p.title}}</h4></a>
+            </div>
+            <a href="{{p.domain.url}}/{{p.url_slug}}-{{p.id}}">
+                {% if p.main_image_url == None %}
+                <img src="https://via.placeholder.com/700x400/09f/fff.png?text=Post+has+no+image" class="card-img-top" alt="{{p.title}}">
+                {% else %}
+                <img src="{{p.main_image_url}}" class="card-img-top" alt="{{p.title}}">
+                {% endif %}
+            </a>
+            <div class="card-body">
+              <p class="card-text">{{p.data.snippet|safe|truncatechars_html:100}}</p>
+            </div>
+            <div class="card-footer" style="position:relative; font-size: 150%">
+                <small class="text-muted">
+                <a href="{{p.domain.url}}/{{p.url_slug}}-{{p.id}}">
+                    <span class="badge badge-warning"> Rating: {{p.rating}}</span>
+                    <span class="badge badge-light">by {{p.user.login}} : <i>{{p.user.karma}}</i></span>
+                    <span class="badge badge-pill badge-info" style="position:absolute; right:0px; bottom:0px; height: 100%;
+                                                                            border-bottom-left-radius: 0px; border-bottom-right-radius: calc(0.25rem - 1px);
+                                                                            border-top-left-radius: 0px; border-top-right-radius: 0px; display: flex; align-items: center;">
+                                                                            🗣️: {{p.comments_count}}</span>
+                </a>
+                </small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+    </div>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {% if settings.prev_page == 0 %}disabled{% endif %}">
+          <a class="page-link" href="{% url 'index' page=settings.prev_page threshold_date=settings.threshold_date %}" tabindex="-1" aria-disabled="true">Previous</a>
+        </li>
+        {% if settings.prev_page != 0 %}<li class="page-item"><a class="page-link" href="{% url 'index' page=settings.prev_page threshold_date=settings.threshold_date %}">{{settings.prev_page}}</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{settings.curr_page}}</span></li>
+        <li class="page-item"><a class="page-link" href="{% url 'index' page=settings.next_page threshold_date=settings.threshold_date %}">{{settings.next_page}}</a></li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'index' page=settings.next_page threshold_date=settings.threshold_date %}">Next</a>
+        </li>
+      </ul>
+    </nav>
+
+
+{% endblock %}
+
